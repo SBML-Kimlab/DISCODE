@@ -14,10 +14,6 @@ cd DISCODE
 conda env create -f discode.yaml
 conda activate discode
 ```
-3. Download the model weights
-```
-wget ~
-```
 
 ## Usage
 **Example of classification**

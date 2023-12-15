@@ -80,7 +80,7 @@ def replace_sequence(mut, sequence):
     seq = "".join(seq_list)
     return seq
 
-def model_processing(dataloader, model):
+def model_prediction(dataloader, model):
     model.eval()
     with torch.no_grad():
         for batch in dataloader:
@@ -112,7 +112,7 @@ def make_max_attention_map(attention_weights):
     plt.figure(figsize=(10,4))
     sns.heatmap(max_attn, cmap="Blues")
 
-def make_attention_sum(attention_weights, idx, sequence):
+def plot_attention_sum(attention_weights, idx, sequence):
     att_sum = np.sum(np.sum(np.sum(attention_weights, axis=0), axis=0), axis=0)
     average, std = np.mean(att_sum), np.std(att_sum)
     threshold = average + 2 * std
@@ -126,9 +126,9 @@ def make_attention_sum(attention_weights, idx, sequence):
     for i in range(len(salient_residues)):
         print(f"The attention sum of {salient_residues[i]} is ... {att_sum[idx[i]]:.3f}")
 
-def scan_switch_mutation(model, max_num_mutation, max_num_solution , prob_thres, name, sequence, pickle_path, mode):
+def scan_switch_mutation(model, name, sequence, pickle_path, max_num_mutation=2, max_num_solution=20, prob_thres=0.5, mode="shortest"):
     wt_dataloader = tokenize_and_dataloader(name, sequence)
-    wt_idx, wt_prob, wt_label, wt_name, _ = model_processing(wt_dataloader, model)
+    wt_idx, wt_prob, wt_label, wt_name, _ = model_prediction(wt_dataloader, model)
     convert_dict = {}
     index_dict = {}
     if mode == "iterative_prob":
@@ -239,7 +239,7 @@ def generate_mutation(model, wt_label, idx, trial, name, sequence, results, inde
         for mut in mut_list:
             mut_seq = replace_sequence(mut, sequence)
             mut_dataloader = tokenize_and_dataloader(mut, mut_seq)
-            mut_idx, mut_prob, mut_label, mut_index, _ = model_processing(mut_dataloader, model)
+            mut_idx, mut_prob, mut_label, mut_index, _ = model_prediction(mut_dataloader, model)
             if (wt_label == mut_label).sum().item() == 0:
                 index_dict[mut_index[0]] = mut_idx
                 results["Convert"][mut_index[0]] = mut_prob.numpy()
@@ -255,7 +255,7 @@ def generate_mutation(model, wt_label, idx, trial, name, sequence, results, inde
             if mut not in index_dict.keys():
                 mut_seq = replace_sequence(mut, sequence)
                 mut_dataloader = tokenize_and_dataloader(mut, mut_seq)
-                mut_idx, mut_prob, mut_label, mut_index, _ = model_processing(mut_dataloader, model)
+                mut_idx, mut_prob, mut_label, mut_index, _ = model_prediction(mut_dataloader, model)
                 if (wt_label == mut_label).sum().item() == 0:
                     index_dict[mut_index[0]] = mut_idx
                     results["Convert"][mut_index[0]] = mut_prob.numpy()

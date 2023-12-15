@@ -3,7 +3,7 @@
 **DISCODE** (**D**eep learning-based **I**terative pipline to analyze **S**pecificity of **CO**factors and to **D**esign **E**nzyme) is a transformer-based NAD/NADP classification model. The model uses ESM-2 language model for amino acid embedding, finally represents the probability of NAD and NADP. This code can also be run on Google Colaboratory.
 
 ## Installation
-**Note : This code was developed in Linux, and has been tested in Ubuntu 18.04 with Python 3.8.**
+**Note : This code was developed in Linux, and has been tested in Ubuntu 18.04 and 20.04 with Python 3.8.**
 1. Clone github repository
 ```
 git clone https://github.com/SBML-Kimlab/DISCODE.git

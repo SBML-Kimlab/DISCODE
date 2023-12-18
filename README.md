@@ -42,7 +42,7 @@ utils.make_attention_sum(attention_weights, outlier_idx, sequence)
   - max_num_mutation: the maximum number of mutations to yield cofactor switching mutant (default=3)
   - max_num_solution: the maximum number of solutions to return (default=50)
   - prob_thres: probability threshold for cofactor specificity reversal (default=0.5)
-  - pickle_path: directory where a pickle file is saved (default='')
+  - pickle_path: directory where a pickle file is saved (default='unknown.pkl')
   - sequence: a protein sequence aimed at changing cofactor specificity
   - name: sequence id (default='unknown')
   - mode (default=iterative_num):

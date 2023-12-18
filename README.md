@@ -65,4 +65,5 @@ utils.scan_switch_mutation(model = model,
 ## Contact
 If you have any questions, problems or suggestions, please contact [us](https://sites.google.com/view/systemskimlab/home).
 
-## Reference
+## Citation
+J Kim, J Woo, JY Park, KJ Kim, D Kim. Transformer-based NAD/NADP cofactor analysis pipeline provides insights on classification and engineering of enzymes. (paper under a submission)

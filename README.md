@@ -65,4 +65,4 @@ utils.scan_switch_mutation(model = model,
 ## Contact
 If you have any questions, problems or suggestions, please contact [us](https://sites.google.com/view/systemskimlab/home).
 
-## Citation
+## Reference

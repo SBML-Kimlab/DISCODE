@@ -44,7 +44,7 @@ utils.make_attention_sum(attention_weights, outlier_idx, sequence)
   - prob_thres: probability threshold for cofactor specificity reversal (default=0.5)
   - pickle_path: directory where a pickle file is saved (default='unknown.pkl')
   - sequence: a protein sequence aimed at changing cofactor specificity
-  - name: sequence id (default='unknown')
+  - name: sequence id (default='unknown', the mutation will be concatenated by "_", so do not use underscore)
   - mode (default=iterative_num):
     * iterative_prob : Scan all combinations of mutations guided by attention analysis and return those for optimal probabilities (exhaustively calculate most probable designs).
     * iterative_num : Scan all combinations of residues guided by attention analysis. However, if a cofactor switching design is obtained, scan only to combinations from the same number of mutations (exhaustively calculate a minimal requirement of designs).

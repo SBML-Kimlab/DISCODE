@@ -129,6 +129,7 @@ def plot_attention_sum(attention_weights, idx, sequence):
 def scan_switch_mutation(model, name, sequence, pickle_path, max_num_mutation=2, max_num_solution=20, prob_thres=0.5, mode="shortest"):
     wt_dataloader = tokenize_and_dataloader(name, sequence)
     wt_idx, wt_prob, wt_label, wt_name, _ = model_prediction(wt_dataloader, model)
+    print(f"The wildtype label probability is ...{wt_prob}")
     convert_dict = {}
     index_dict = {}
     if mode == "iterative_prob":
@@ -148,13 +149,6 @@ def scan_switch_mutation(model, name, sequence, pickle_path, max_num_mutation=2,
                 f.close()
             for key in results["Convert"].keys():
                 convert_dict[key] = results["Convert"][key]
-            if sum(np.array(list(convert_dict.values()))[:, np.argmin(wt_idx)] > prob_thres) > max_num_solution:
-                print("The mutation scanning is end...")
-                break
-            elif i == max_num_mutation -1 and sum(np.array(list(convert_dict.values()))[:, np.argmin(wt_idx)] > prob_thres) < max_num_solution:
-                print("The mutation scanning is end but not sufficient solution...")
-            else:
-                continue
         if len(convert_dict.keys()) == 0:
             print(f"The mutation was not found...")
         else:
@@ -165,6 +159,8 @@ def scan_switch_mutation(model, name, sequence, pickle_path, max_num_mutation=2,
                 df = df.sort_values(by="NADP", ascending=False)
             elif (wt_label == torch.tensor([0,1])).sum().item() == 2:
                 df = df.sort_values(by="NAD", ascending=False)
+            if len(df) > max_num_solution:
+                df = df.loc[df.index[:max_num_solution]]
             return df
     elif mode == "iterative_num":
         for i in range(max_num_mutation):
@@ -183,13 +179,9 @@ def scan_switch_mutation(model, name, sequence, pickle_path, max_num_mutation=2,
                 f.close()
             for key in results["Convert"].keys():
                 convert_dict[key] = results["Convert"][key]
-            if len(convert_dict.keys()) >= max_num_solution:
-                print(f"The mutation was derived in {i + 1} mutations more than {max_num_solution}. So the iteration was stopped.")
+            if len(convert_dict) > 0:
+                print(f"The mutation was found in {i + 1}step")
                 break
-            elif i == max_num_mutation -1 and len(convert_dict.keys()) < max_num_solution:
-                print("The mutation scanning is end but not sufficient solution...")
-            else:
-                continue
         if len(results["Convert"].keys()) == 0:
             print(f"The mutation was not found...")
         else:
@@ -200,6 +192,8 @@ def scan_switch_mutation(model, name, sequence, pickle_path, max_num_mutation=2,
                 df = df.sort_values(by="NADP", ascending=False)
             elif (wt_label == torch.tensor([0,1])).sum().item() == 2:
                 df = df.sort_values(by="NAD", ascending=False)
+            if len(df) > max_num_solution:
+                df = df.loc[df.index[:max_num_solution]]      
             return df
     elif mode == "shortest":
         results = {"Convert" : {}, "No" : {}}

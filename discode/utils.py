@@ -126,7 +126,7 @@ def plot_attention_sum(attention_weights, idx, sequence):
     for i in range(len(salient_residues)):
         print(f"The attention sum of {salient_residues[i]} is ... {att_sum[idx[i]]:.3f}")
 
-def scan_switch_mutation(model, name, sequence, pickle_path, max_num_mutation=2, max_num_solution=20, prob_thres=0.5, mode="shortest"):
+def scan_switch_mutation(model, sequence, name="unknwon", pickle_path=".", max_num_mutation=3, max_num_solution=20, prob_thres=0.5, mode="iterative_num"):
     wt_dataloader = tokenize_and_dataloader(name, sequence)
     wt_idx, wt_prob, wt_label, wt_name, _ = model_prediction(wt_dataloader, model)
     print(f"The wildtype label probability is ...{wt_prob}")

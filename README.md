@@ -37,7 +37,7 @@ utils.make_attention_sum(attention_weights, outlier_idx, sequence)
 # This will plot attention sum, in shape of sequence length L
 ```
 
-**Simple example of automated mutation design pipeline is in example/example.ipynb.**
+**Jupyter example of a designing pipeline for cofactor switching mutants is in example/example.ipynb.**
 [Options]
   - max_num_mutation: the maximum number of mutations to yield cofactor switching mutant (default=3)
   - max_num_solution: the maximum number of solutions to return (default=50)

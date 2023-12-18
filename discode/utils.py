@@ -27,7 +27,7 @@ def collect_attention_weights(inputs, model):
 
 def make_mut_candidate(idx, name, sequence,):
     name_dict = {}
-    name_split = name.split("_")
+    name_split = name.split(";")
     if len(name_split) == 1:
         mut_list = []
         for index in idx:
@@ -36,7 +36,7 @@ def make_mut_candidate(idx, name, sequence,):
             if original in aa_list:
                 aa_list.remove(original)
             for i in range(len(aa_list)):
-                mut_list.append(name + "_" + original + str(index + 1) + aa_list[i])
+                mut_list.append(name + ";" + original + str(index + 1) + aa_list[i])
     else:
         mut_list = []
         for index in idx:
@@ -51,7 +51,7 @@ def make_mut_candidate(idx, name, sequence,):
                 name_items = sorted(name_dict.items())
                 x = name_split[0]
                 for item in name_items:
-                    x += "_" + item[-1]
+                    x += ";" + item[-1]
                 mut_list.append(x)
     return mut_list
 
@@ -71,7 +71,7 @@ def tokenize_and_dataloader(name, sequence):
     return dataloader
 
 def replace_sequence(mut, sequence):
-    mut_list = mut.split("_")[1:]
+    mut_list = mut.split(";")[1:]
     seq_list = list(sequence)
     for mut_candidate in mut_list:
         ori_aa, pos, mut_aa = mut_candidate[0], int(mut_candidate[1:-1]), mut_candidate[-1]
@@ -141,7 +141,7 @@ def scan_switch_mutation(model, sequence, name="unknwon", pickle_path=".", max_n
             else:
                 mut_keys = list(index_dict.keys())
                 for key in mut_keys:
-                    if len(key.split("_")) == i + 1:
+                    if len(key.split(";")) == i + 1:
                         generate_mutation(model, wt_label, index_dict[key], i, key, sequence, results, index_dict, mode)
             print(f"The mutation step {wt_name, i + 1} end...")
             with open(pickle_path + "/" + name + "_iterative_prob_mutation_" + str(i + 1) + ".pkl", "wb") as f:
@@ -171,7 +171,7 @@ def scan_switch_mutation(model, sequence, name="unknwon", pickle_path=".", max_n
             else:
                 mut_keys = list(index_dict.keys())
                 for key in mut_keys:
-                    if len(key.split("_")) == i + 1:
+                    if len(key.split(";")) == i + 1:
                         generate_mutation(model, wt_label, index_dict[key], i, key, sequence, results, index_dict, mode)
             print(f"The mutation step {wt_name, i + 1} end...")
             with open(pickle_path + "/" + name + "_iterative_num_mutation_" + str(i + 1) + ".pkl", "wb") as f:

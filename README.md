@@ -56,11 +56,8 @@ utils.make_attention_sum(attention_weights, outlier_idx, sequence)
 ```python
 utils.scan_switch_mutation(model = model,
                            max_num_mutation = 3,
-                           max_num_solution = 50,
-                           prob_thres = 0.5,
                            name = name,
                            sequence = sequence,
-                           pickle_path = "",
                            mode = "iterative_num",)
 ```
 

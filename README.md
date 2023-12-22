@@ -26,18 +26,24 @@ from discode import models, utils
 model_path = "weights/weights.pt" # please specify the model weight path
 model = models.load(model_path) # if gpu available, it will automatically load on gpu
 
-name, sequence = "3M6I", "MASSASKTNIGVFTNPQHDLWISEASPSLESVQKGEELKEGEVTVAVRSTGICGSDVHFWKHGCIGPMIVECDHVLGHESAGEVIAVHPSVKSIKVGDRVAIEPQVICNACEPCLTGRYNGCERVDFLSTPPVPGLLRRYVNHPAVWCHKIGNMSYENGAMLEPLSVALAGLQRAGVRLGDPVLICGAGPIGLITMLCAKAAGACPLVITDIDEGRLKFAKEICPEVVTHKVERLSAEESAKKIVESFGGIEPAVALECTGVESSIAAAIWAVKFGGKVFVIGVGKNEIQIPFMRASVREVDLQFQYRYCNTWPRAIRLVENGLVDLTRLVTHRFPLEDALKAFETASDPKTGAIKVQIQSLE"
-dataloader = utils.tokenize_and_dataloader(name, sequence) # preprocess
+name, sequence = "Q9K3J3", "MTRTPVNVTVTGAAGQIGYALLFRIASGQLLGADVPVKLRLLEITPALKAAEGTAMELDDCAFPLLQGIEITDDPNVAFDGANVALLVGARPRTKGMERGDLLEANGGIFKPQGKAINDHAADDIKVLVVGNPANTNALIAQAAAPDVPAERFTAMTRLDHNRALTQLAKKTGSTVADIKRLTIWGNHSATQYPDIFHATVAGKNAAETVNDEKWLADEFIPTVAKRGAAIIEARGASSAASAANAAIDHVYTWVNGTAEGDWTSMGIPSDGSYGVPEGIISSFPVTTKDGSYEIVQGLDINEFSRARIDASVKELSEEREAVRGLGLI"
 
-outlier_idx, probability, predicted_label, _name, attention_weights = utils.model_processing(dataloader, model)
+# Predict label of wildtype sequence
+# The sequence will be preprocessed with ESM-2 model
+data = utils.tokenize_and_dataloader(name, sequence)
+
+# The processed data will be transferred into the the model, and predict the probability, attention weights, outlier residues
+outlier_idx, probability, predicted_label, _name, attention_weights = utils.model_processing(data, model)
 # The outlier_idx is zero-index
-# probability, predicted_label, attention_weights, is output of model, the _name is same with previously declared variable name.
+# The _name is the same as the previously declared variable name.
 
-utils.make_max_attention_map(attention_weights)
+
 # This will plot maximum attention map of overall model, in shape of [8,20]
+utils.make_max_attention_map(attention_weights)
 
-utils.make_attention_sum(attention_weights, outlier_idx, sequence)
+# Plot the attention sum and outlier residues
 # This will plot attention sum, in shape of sequence length L
+utils.plot_attention_sum(attention_weights, outlier_idx, sequence)
 ```
 
 **Ipynb example of a designing pipeline for cofactor switching mutants is in example/example.ipynb.**
@@ -65,4 +71,4 @@ utils.scan_switch_mutation(model = model,
 ## Contact
 If you have any questions, problems or suggestions, please contact [us](https://sites.google.com/view/systemskimlab/home).
 
-## Citation
+## Reference

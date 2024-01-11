@@ -72,7 +72,7 @@ utils.scan_switch_mutation(model = model,
 If you have any questions, problems or suggestions, please contact [us](https://sites.google.com/view/systemskimlab/home).
 
 ## Reference
-A. Vaswani et al., Attention Is All You Need. Adv Neur In 30 (2017).
-Z. M. Lin et al., Evolutionary-scale prediction of atomic-level protein structure with a language model. Science 379, 1123-1130 (2023).
+1. A. Vaswani et al., Attention Is All You Need. Adv Neur In 30 (2017).
+2. Z. M. Lin et al., Evolutionary-scale prediction of atomic-level protein structure with a language model. Science 379, 1123-1130 (2023).
 
 ## Citation

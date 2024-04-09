@@ -33,7 +33,7 @@ name, sequence = "Q9K3J3", "MTRTPVNVTVTGAAGQIGYALLFRIASGQLLGADVPVKLRLLEITPALKAAE
 data = utils.tokenize_and_dataloader(name, sequence)
 
 # The processed data will be transferred into the the model, and predict the probability, attention weights, outlier residues
-outlier_idx, probability, predicted_label, _name, attention_weights = utils.model_processing(data, model)
+outlier_idx, probability, predicted_label, _name, attention_weights = utils.model_prediction(data, model)
 # The outlier_idx is zero-index
 # The _name is the same as the previously declared variable name.
 

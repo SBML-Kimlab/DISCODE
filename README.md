@@ -5,8 +5,17 @@
 
 **DISCODE** (**D**eep learning-based **I**terative pipline to analyze **S**pecificity of **CO**factors and to **D**esign **E**nzyme) is a transformer-based NAD/NADP classification model. The model uses ESM-2 language model for amino acid embedding, finally represents the probability of NAD and NADP. This code can also be run on Google Colaboratory.
 
+## Repository Overview
+This structure helps users easily navigate and understand the DISCODE repository.
+  - **discode.yaml** : A YAML file that lists all the necessary dependencies for creating a Conda environment.
+  - **discode/models.py** : Contains the model architecture and loading functions.
+  - **discode/utils.py** : Utility functions such as sequence processing, model inference, visualization, and mutant design tools.
+  - **example/example.ipynb** : A Jupyter notebook for identifying and designing cofactor-switching mutants.
+  - **weights/weights.pt** : The weight file that needs to be loaded for using the model.
+
 ## Installation
 **Note : This code was developed in Linux, and has been tested in Ubuntu 18.04 and 20.04 with Python 3.8.**
+**While the code requires a conda environment for easier use, it can also be used without conda by installing the dependencies listed in the yaml file via pip.**
 1. Clone github repository
 ```
 git clone https://github.com/SBML-Kimlab/DISCODE.git
@@ -46,7 +55,9 @@ utils.make_max_attention_map(attention_weights)
 utils.plot_attention_sum(attention_weights, outlier_idx, sequence)
 ```
 
+## Designing Cofactor-Switching Mutants:
 **Ipynb example of a designing pipeline for cofactor switching mutants is in example/example.ipynb.**
+
 [Options]
   - max_num_mutation: set the maximum number of mutations to yield cofactor switching mutant (default=3)
   - max_num_solution: set the maximum number of solutions to return (default=50)

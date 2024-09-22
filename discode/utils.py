@@ -8,12 +8,36 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle as pkl
 
-def listup_salient_residues(attention_matrix,):
+def listup_outlier_residues(attention_matrix, threshold="Z=2"):
     att_sum = np.sum(np.sum(np.sum(attention_matrix, axis=0), axis=0), axis=0)
-    average, std = np.mean(att_sum), np.std(att_sum)
-    threshold = average + 2 * std
-    idx = np.where((att_sum > threshold) == True)[0]
+    threshold_value = specify_threshold(att_sum, threshold)
+    idx = np.where((att_sum > threshold_value) == True)[0]
     return idx
+
+def specify_threshold(att_sum, threshold):
+    if threshold == "Z=1":
+        average, std = np.mean(att_sum), np.std(att_sum)
+        threshold_value = average + 1 * std
+    elif threshold == "Z=2":
+        average, std = np.mean(att_sum), np.std(att_sum)
+        threshold_value = average + 2 * std
+    elif threshold == "Z=3":
+        average, std = np.mean(att_sum), np.std(att_sum)
+        threshold_value = average + 3 * std
+    elif threshold == "IQR":
+        Q1 = np.percentile(att_sum, 25)
+        Q3 = np.percentile(att_sum, 75)
+        IQR = Q3 - Q1
+        threshold_value = Q3 + 1.5 * IQR
+    elif threshold == "0.90":
+        threshold_value = np.percentile(att_sum, 90)
+    elif threshold == "0.95":
+        threshold_value = np.percentile(att_sum, 95)
+    elif threshold == "0.99":
+        threshold_value = np.percentile(att_sum, 99)
+    else:
+        raise ValueError("Error : This is not the provided threshold. The threshold must be 'Z=1', 'Z=2', 'Z=3', 'IQR', '0.90', '0.95', '0.99'.")
+    return threshold_value
 
 def collect_attention_weights(inputs, model):
     x = inputs
@@ -80,7 +104,7 @@ def replace_sequence(mut, sequence):
     seq = "".join(seq_list)
     return seq
 
-def model_prediction(dataloader, model):
+def model_prediction(dataloader, model, threshold="Z=2"):
     model.eval()
     with torch.no_grad():
         for batch in dataloader:
@@ -88,7 +112,7 @@ def model_prediction(dataloader, model):
             wt_prob = model(inputs).cpu().squeeze(0)
             wt_label = (wt_prob >= 0.5).float()
             attention_weights = collect_attention_weights(inputs, model)
-        original_idx = listup_salient_residues(attention_weights,)
+        original_idx = listup_outlier_residues(attention_weights, threshold)
     return original_idx, wt_prob, wt_label, labels, attention_weights
 
 def make_df_sorting_by_prob(candidate, wt_label):
@@ -112,39 +136,40 @@ def make_max_attention_map(attention_weights):
     plt.figure(figsize=(10,4))
     sns.heatmap(max_attn, cmap="Blues")
 
-def plot_attention_sum(attention_weights, idx, sequence):
+def plot_attention_sum(attention_weights, sequence, threshold="Z=2"):
     att_sum = np.sum(np.sum(np.sum(attention_weights, axis=0), axis=0), axis=0)
-    average, std = np.mean(att_sum), np.std(att_sum)
-    threshold = average + 2 * std
+    threshold_value = specify_threshold(att_sum, threshold)
+    idx = np.where((att_sum > threshold_value) == True)[0]
     plt.plot(np.arange(1, len(att_sum) + 1), att_sum)
-    plt.plot((1, len(att_sum) + 1), (threshold, threshold), color="red", linestyle="--")
+    plt.plot((1, len(att_sum) + 1), (threshold_value, threshold_value), color="red", linestyle="--")
     print(f"The maximum attention sum is ... {np.max(att_sum):.3f}")
-    salient_residues = []
+    print(f"The threshold was ... {threshold}")
+    outlier_residues = []
     for res in idx:
-        salient_residues.append(sequence[res] + str(res+1))
-    print(f"The salient residues are ... {salient_residues}")
-    for i in range(len(salient_residues)):
-        print(f"The attention sum of {salient_residues[i]} is ... {att_sum[idx[i]]:.3f}")
+        outlier_residues.append(sequence[res] + str(res+1))
+    print(f"The outlier residues are ... {outlier_residues}")
+    for i in range(len(outlier_residues)):
+        print(f"The attention sum of {outlier_residues[i]} is ... {att_sum[idx[i]]:.3f}")
 
-def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_num_mutation=3, max_num_solution=50, prob_thres=0.5, mode="iterative_num"):
+def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_num_mutation=3, max_num_solution=50, prob_thres=0.5, mode="iter_num", threshold="Z=2"):
     wt_dataloader = tokenize_and_dataloader(name, sequence)
     wt_idx, wt_prob, wt_label, wt_name, _ = model_prediction(wt_dataloader, model)
     print(f"The wildtype label probability is ...{wt_prob}")
     convert_dict = {}
     index_dict = {}
-    if mode == "iterative_prob":
+    if mode == "iter_prob":
         for i in range(max_num_mutation):
             results = {"Convert" : {}, "No" : {}}
             results["No"][i] = {}
             if i == 0:
-                generate_mutation(model, wt_label, wt_idx, i, wt_name[0], sequence, results, index_dict, mode)
+                generate_mutation(model, wt_label, wt_idx, i, wt_name[0], sequence, results, index_dict, mode, threshold)
             else:
                 mut_keys = list(index_dict.keys())
                 for key in mut_keys:
                     if len(key.split(";")) == i + 1:
-                        generate_mutation(model, wt_label, index_dict[key], i, key, sequence, results, index_dict, mode)
+                        generate_mutation(model, wt_label, index_dict[key], i, key, sequence, results, index_dict, mode, threshold)
             print(f"The mutation step {wt_name, i + 1} end...")
-            with open(pickle_path + "/" + name + "_iterative_prob_mutation_" + str(i + 1) + ".pkl", "wb") as f:
+            with open(pickle_path + "/" + name + "_iter_prob_mutation_" + str(i + 1) + ".pkl", "wb") as f:
                 pkl.dump(results, f)
                 f.close()
             for key in results["Convert"].keys():
@@ -162,19 +187,19 @@ def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_n
             if len(df) > max_num_solution:
                 df = df.loc[df.index[:max_num_solution]]
             return df
-    elif mode == "iterative_num":
+    elif mode == "iter_num":
         for i in range(max_num_mutation):
             results = {"Convert" : {}, "No" : {}}
             results["No"][i] = {}
             if i == 0:
-                generate_mutation(model, wt_label, wt_idx, i, wt_name[0], sequence, results, index_dict, mode)
+                generate_mutation(model, wt_label, wt_idx, i, wt_name[0], sequence, results, index_dict, mode, threshold)
             else:
                 mut_keys = list(index_dict.keys())
                 for key in mut_keys:
                     if len(key.split(";")) == i + 1:
-                        generate_mutation(model, wt_label, index_dict[key], i, key, sequence, results, index_dict, mode)
+                        generate_mutation(model, wt_label, index_dict[key], i, key, sequence, results, index_dict, mode, threshold)
             print(f"The mutation step {wt_name, i + 1} end...")
-            with open(pickle_path + "/" + name + "_iterative_num_mutation_" + str(i + 1) + ".pkl", "wb") as f:
+            with open(pickle_path + "/" + name + "_iter_num_mutation_" + str(i + 1) + ".pkl", "wb") as f:
                 pkl.dump(results, f)
                 f.close()
             for key in results["Convert"].keys():
@@ -200,13 +225,13 @@ def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_n
         for i in range(max_num_mutation):
             results["No"][i] = {}
             if i == 0:
-                generate_mutation(model, wt_label, wt_idx, i, wt_name[0], sequence, results, index_dict, mode)
+                generate_mutation(model, wt_label, wt_idx, i, wt_name[0], sequence, results, index_dict, mode, threshold)
                 if len(results["Convert"].keys()) > 0:
                     print(f"The mutation was derived in {i + 1} mutations. Iteration stopped.")
                     break
             else:
                 sorted_results = sorted(results["No"][i-1].items(), key = lambda item: item[1], reverse=True)
-                generate_mutation(model, wt_label, index_dict[sorted_results[0][0]], i, sorted_results[0][0], sequence, results, index_dict, mode)
+                generate_mutation(model, wt_label, index_dict[sorted_results[0][0]], i, sorted_results[0][0], sequence, results, index_dict, mode, threshold)
                 if len(results["Convert"].keys()) > 0:
                     print(f"The mutation was derived in {i + 1} mutations. Iteration stopped.")
                     break
@@ -214,7 +239,7 @@ def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_n
             pkl.dump(results, f)
             f.close()
         if len(results["Convert"].keys()) == 0:
-            print(f"The mutation was not found... Please use iterative mode.")
+            print(f"The mutation was not found... Please use iter mode.")
         else:
             keys = results["Convert"].keys()
             values = results["Convert"].values()
@@ -227,13 +252,13 @@ def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_n
     else:
         print("The mode command is unknown.. Please check the mode argument and rerun.")
         
-def generate_mutation(model, wt_label, idx, trial, name, sequence, results, index_dict, mode):
+def generate_mutation(model, wt_label, idx, trial, name, sequence, results, index_dict, mode, threshold="Z=2"):
     if mode == "shortest":
         mut_list = make_mut_candidate(idx, name, sequence)
         for mut in mut_list:
             mut_seq = replace_sequence(mut, sequence)
             mut_dataloader = tokenize_and_dataloader(mut, mut_seq)
-            mut_idx, mut_prob, mut_label, mut_index, _ = model_prediction(mut_dataloader, model)
+            mut_idx, mut_prob, mut_label, mut_index, _ = model_prediction(mut_dataloader, model, threshold)
             if (wt_label == mut_label).sum().item() == 0:
                 index_dict[mut_index[0]] = mut_idx
                 results["Convert"][mut_index[0]] = mut_prob.numpy()
@@ -249,7 +274,7 @@ def generate_mutation(model, wt_label, idx, trial, name, sequence, results, inde
             if mut not in index_dict.keys():
                 mut_seq = replace_sequence(mut, sequence)
                 mut_dataloader = tokenize_and_dataloader(mut, mut_seq)
-                mut_idx, mut_prob, mut_label, mut_index, _ = model_prediction(mut_dataloader, model)
+                mut_idx, mut_prob, mut_label, mut_index, _ = model_prediction(mut_dataloader, model, threshold)
                 if (wt_label == mut_label).sum().item() == 0:
                     index_dict[mut_index[0]] = mut_idx
                     results["Convert"][mut_index[0]] = mut_prob.numpy()

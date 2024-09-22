@@ -94,7 +94,8 @@ utils.scan_switch_mutation(model = model,
                            max_num_mutation = 3,
                            name = name,
                            sequence = sequence,
-                           mode = "iter_num",)
+                           mode = "iter_num",
+                           threshold = "Z=2",)
 ```
 
 ## Contact

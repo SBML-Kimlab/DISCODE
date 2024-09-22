@@ -28,31 +28,49 @@ conda activate discode
 ```
 
 ## Usage
-**Example of classification**
+**Preparation**
 ```python
 from discode import models, utils
 
 model_path = "weights/weights.pt" # please specify the model weight path
 model = models.load(model_path) # if gpu available, it will automatically load on gpu
+model.eval() # Model must be specified "eval"
 
+# Q9K3J3 is Streptomyces coelicolor malate dehydrogenase
 name, sequence = "Q9K3J3", "MTRTPVNVTVTGAAGQIGYALLFRIASGQLLGADVPVKLRLLEITPALKAAEGTAMELDDCAFPLLQGIEITDDPNVAFDGANVALLVGARPRTKGMERGDLLEANGGIFKPQGKAINDHAADDIKVLVVGNPANTNALIAQAAAPDVPAERFTAMTRLDHNRALTQLAKKTGSTVADIKRLTIWGNHSATQYPDIFHATVAGKNAAETVNDEKWLADEFIPTVAKRGAAIIEARGASSAASAANAAIDHVYTWVNGTAEGDWTSMGIPSDGSYGVPEGIISSFPVTTKDGSYEIVQGLDINEFSRARIDASVKELSEEREAVRGLGLI"
-
+```
+**Example of classification**
+```python
 # Predict label of wildtype sequence
-# The sequence will be preprocessed with ESM-2 model
-data = utils.tokenize_and_dataloader(name, sequence)
+# The sequence data will be preprocessed with ESM2-t12 model
+data = new_utils.tokenize_and_dataloader(name, sequence)
 
-# The processed data will be transferred into the the model, and predict the probability, attention weights, outlier residues
-outlier_idx, probability, predicted_label, _name, attention_weights = utils.model_prediction(data, model)
-# The outlier_idx is zero-index
-# The _name is the same as the previously declared variable name.
-
-
-# This will plot maximum attention map of overall model, in shape of [8,20]
-utils.make_max_attention_map(attention_weights)
-
-# Plot the attention sum and outlier residues
-# This will plot attention sum, in shape of sequence length L
-utils.plot_attention_sum(attention_weights, outlier_idx, sequence)
+# The processed data will be transferred into model, and predict the probability, attention weights, and outlier residues
+# The default threshold for selecting outliers is set to Z=2
+outlier_idx, probability, predicted_label, _name, attention_weights = new_utils.model_prediction(data, model, threshold="Z=2")
+# The first column of probability is NAD probability, and the second column is NADP probability
+print(f"The label probability of NAD is {probability.detach().numpy()[0]:.3f}, NADP is {probability.detach().numpy()[1]:.3f}")
+# The label probability of NAD is 0.999, NADP is 0.001
+```
+**Plot the attention sum and outlier residues**
+```python
+# The default threshold for selecting outliers is set to Z=2
+new_utils.plot_attention_sum(attention_weights, sequence, threshold="Z=2")
+```
+**Changes in outlier residues based on supporting different thrersholds**
+```python
+# The supported thresholds are as follows, with the default set to Z=2.
+threshold_list = ["Z=1", "Z=2", "Z=3", "IQR", "0.90", "0.95", "0.99"]
+for threshold in threshold_list:
+    outlier_idx, _, _, _, _ = new_utils.model_prediction(data, model, threshold=threshold)
+    print(f"{threshold} : {len(outlier_idx)} outliers, {outlier_idx}")
+# Z=1 : 18 outliers, [ 10  11  13  42  43  44  50  53  86  87  88  89 101 129 156 158 185 242]
+# Z=2 : 5 outliers, [13 42 43 44 88]
+# Z=3 : 3 outliers, [13 42 43]
+# IQR : 31 outliers, [  7   9  10  11  13  16  41  42  43  44  50  53  54  86  87  88  89  98 101 129 156 158 159 168 185 189 236 237 239 242 286]
+# 0.90 : 33 outliers, [  7   9  10  11  13  16  41  42  43  44  50  53  54  86  87  88  89  98 101 108 129 156 158 159 168 185 188 189 236 237 239 242 286]
+# 0.95 : 17 outliers, [ 10  11  13  42  43  44  53  86  87  88  89 101 129 156 158 185 242]
+# 0.99 : 4 outliers, [13 42 43 44]
 ```
 
 ## Designing Cofactor-Switching Mutants:
@@ -76,7 +94,7 @@ utils.scan_switch_mutation(model = model,
                            max_num_mutation = 3,
                            name = name,
                            sequence = sequence,
-                           mode = "iterative_num",)
+                           mode = "iter_num",)
 ```
 
 ## Contact

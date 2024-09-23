@@ -46,16 +46,16 @@ name, sequence = "Q9K3J3", "MTRTPVNVTVTGAAGQIGYALLFRIASGQLLGADVPVKLRLLEITPALKAAE
 data = new_utils.tokenize_and_dataloader(name, sequence)
 
 # The processed data will be transferred into model, and predict the probability, attention weights, and outlier residues
-# The default threshold for selecting outliers is set to S2
-outlier_idx, probability, predicted_label, _name, attention_weights = new_utils.model_prediction(data, model, threshold="S2")
+# The default threshold for selecting outliers is set to 2S
+outlier_idx, probability, predicted_label, _name, attention_weights = new_utils.model_prediction(data, model, threshold="2S")
 # The first column of probability is NAD probability, and the second column is NADP probability
 print(f"The label probability of NAD is {probability.detach().numpy()[0]:.3f}, NADP is {probability.detach().numpy()[1]:.3f}")
 # The label probability of NAD is 0.999, NADP is 0.001
 ```
 **Plot the attention sum and outlier residues**
 ```python
-# The default threshold for selecting outliers is set to S2
-new_utils.plot_attention_sum(attention_weights, sequence, threshold="S2")
+# The default threshold for selecting outliers is set to 2S
+new_utils.plot_attention_sum(attention_weights, sequence, threshold="2S")
 ```
 
 ## Designing Cofactor-Switching Mutants:
@@ -68,8 +68,8 @@ new_utils.plot_attention_sum(attention_weights, sequence, threshold="S2")
   - pickle_path: directory where a pickle file is saved (default='.')
   - sequence: a protein sequence aimed at changing cofactor specificity
   - name: sequence id (default='unknown')
-  - threshold (default="S2") : Specifies the method for selecting outliers
-    * Sigma-based thresholds : S1, S2, S3
+  - threshold (default="2S") : Specifies the method for selecting outliers
+    * Sigma-based thresholds : 1S, 2S, 3S
     * IQR (Interquartile Range)
     * Percentile-based thresholds : P90, P95, P99
   - mode (default=iter_num):
@@ -84,7 +84,7 @@ utils.scan_switch_mutation(model = model,
                            name = name,
                            sequence = sequence,
                            mode = "iter_num",
-                           threshold = "S2",)
+                           threshold = "2S",)
 ```
 
 ## Contact

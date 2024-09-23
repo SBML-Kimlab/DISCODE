@@ -8,20 +8,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle as pkl
 
-def listup_outlier_residues(attention_matrix, threshold="Z=2"):
+def listup_outlier_residues(attention_matrix, threshold="S2"):
     att_sum = np.sum(np.sum(np.sum(attention_matrix, axis=0), axis=0), axis=0)
     threshold_value = specify_threshold(att_sum, threshold)
     idx = np.where((att_sum > threshold_value) == True)[0]
     return idx
 
 def specify_threshold(att_sum, threshold):
-    if threshold == "Z=1":
+    if threshold == "S1":
         average, std = np.mean(att_sum), np.std(att_sum)
         threshold_value = average + 1 * std
-    elif threshold == "Z=2":
+    elif threshold == "S2":
         average, std = np.mean(att_sum), np.std(att_sum)
         threshold_value = average + 2 * std
-    elif threshold == "Z=3":
+    elif threshold == "S3":
         average, std = np.mean(att_sum), np.std(att_sum)
         threshold_value = average + 3 * std
     elif threshold == "IQR":
@@ -29,14 +29,14 @@ def specify_threshold(att_sum, threshold):
         Q3 = np.percentile(att_sum, 75)
         IQR = Q3 - Q1
         threshold_value = Q3 + 1.5 * IQR
-    elif threshold == "0.90":
+    elif threshold == "P90":
         threshold_value = np.percentile(att_sum, 90)
-    elif threshold == "0.95":
+    elif threshold == "P95":
         threshold_value = np.percentile(att_sum, 95)
-    elif threshold == "0.99":
+    elif threshold == "P99":
         threshold_value = np.percentile(att_sum, 99)
     else:
-        raise ValueError("Error : This is not the provided threshold. The threshold must be 'Z=1', 'Z=2', 'Z=3', 'IQR', '0.90', '0.95', '0.99'.")
+        raise ValueError("Error : This is not the provided threshold. The threshold must be 'S1', 'S2', 'S3', 'IQR', 'P90', 'P95', 'P99'.")
     return threshold_value
 
 def collect_attention_weights(inputs, model):
@@ -104,7 +104,7 @@ def replace_sequence(mut, sequence):
     seq = "".join(seq_list)
     return seq
 
-def model_prediction(dataloader, model, threshold="Z=2"):
+def model_prediction(dataloader, model, threshold="S2"):
     model.eval()
     with torch.no_grad():
         for batch in dataloader:
@@ -136,7 +136,7 @@ def make_max_attention_map(attention_weights):
     plt.figure(figsize=(10,4))
     sns.heatmap(max_attn, cmap="Blues")
 
-def plot_attention_sum(attention_weights, sequence, threshold="Z=2"):
+def plot_attention_sum(attention_weights, sequence, threshold="S2"):
     att_sum = np.sum(np.sum(np.sum(attention_weights, axis=0), axis=0), axis=0)
     threshold_value = specify_threshold(att_sum, threshold)
     idx = np.where((att_sum > threshold_value) == True)[0]
@@ -151,7 +151,7 @@ def plot_attention_sum(attention_weights, sequence, threshold="Z=2"):
     for i in range(len(outlier_residues)):
         print(f"The attention sum of {outlier_residues[i]} is ... {att_sum[idx[i]]:.3f}")
 
-def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_num_mutation=3, max_num_solution=50, prob_thres=0.5, mode="iter_num", threshold="Z=2"):
+def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_num_mutation=3, max_num_solution=50, prob_thres=0.5, mode="iter_num", threshold="S2"):
     wt_dataloader = tokenize_and_dataloader(name, sequence)
     wt_idx, wt_prob, wt_label, wt_name, _ = model_prediction(wt_dataloader, model)
     print(f"The wildtype label probability is ...{wt_prob}")
@@ -252,7 +252,7 @@ def scan_switch_mutation(model, sequence, name="unknown", pickle_path=".", max_n
     else:
         print("The mode command is unknown.. Please check the mode argument and rerun.")
         
-def generate_mutation(model, wt_label, idx, trial, name, sequence, results, index_dict, mode, threshold="Z=2"):
+def generate_mutation(model, wt_label, idx, trial, name, sequence, results, index_dict, mode, threshold="S2"):
     if mode == "shortest":
         mut_list = make_mut_candidate(idx, name, sequence)
         for mut in mut_list:

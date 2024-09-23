@@ -57,7 +57,7 @@ print(f"The label probability of NAD is {probability.detach().numpy()[0]:.3f}, N
 # The default threshold for selecting outliers is set to Z=2
 new_utils.plot_attention_sum(attention_weights, sequence, threshold="Z=2")
 ```
-**Changes in outlier residues based on supporting different thrersholds**
+**Changes in outlier residues based on supporting different thrersholds (Z-score, IQR, percentile methods)**
 ```python
 # The supported thresholds are as follows, with the default set to Z=2.
 threshold_list = ["Z=1", "Z=2", "Z=3", "IQR", "0.90", "0.95", "0.99"]

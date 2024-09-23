@@ -69,9 +69,8 @@ new_utils.plot_attention_sum(attention_weights, sequence, threshold="2S")
   - sequence: a protein sequence aimed at changing cofactor specificity
   - name: sequence id (default='unknown')
   - threshold (default="2S") : Specifies the method for selecting outliers
-    * Sigma-based thresholds : 1S, 2S, 3S
-    * IQR (Interquartile Range)
-    * Percentile-based thresholds : P90, P95, P99
+    * Standard deviation-based thresholds : 1S (1 sigma), 2S (2 sigma), 3S (3 sigma)
+    * Percentile-based thresholds : IQR (Interquartile Range), P90 (percentile 90), P95 (percentile 95), P99 (percentile 99)
   - mode (default=iter_num):
     * iter_prob : scan all combinations of mutations guided by attention analysis and return those for optimal probabilities (exhaustively calculate most probable designs).
     * iter_num : scan all combinations of residues guided by attention analysis. However, if a cofactor switching design is obtained, scan only to combinations from the same number of mutations (exhaustively calculate a minimal requirement of designs).

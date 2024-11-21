@@ -43,11 +43,11 @@ name, sequence = "Q9K3J3", "MTRTPVNVTVTGAAGQIGYALLFRIASGQLLGADVPVKLRLLEITPALKAAE
 ```python
 # Predict label of wildtype sequence
 # The sequence data will be preprocessed with ESM2-t12 model
-data = new_utils.tokenize_and_dataloader(name, sequence)
+data = utils.tokenize_and_dataloader(name, sequence)
 
 # The processed data will be transferred into model, and predict the probability, attention weights, and outlier residues
 # The default threshold for selecting outliers is set to 2S
-outlier_idx, probability, predicted_label, _name, attention_weights = new_utils.model_prediction(data, model, threshold="2S")
+outlier_idx, probability, predicted_label, _name, attention_weights = utils.model_prediction(data, model, threshold="2S")
 # The first column of probability is NAD probability, and the second column is NADP probability
 print(f"The label probability of NAD is {probability.detach().numpy()[0]:.3f}, NADP is {probability.detach().numpy()[1]:.3f}")
 # The label probability of NAD is 0.999, NADP is 0.001
@@ -55,7 +55,7 @@ print(f"The label probability of NAD is {probability.detach().numpy()[0]:.3f}, N
 **Plot the attention sum and outlier residues**
 ```python
 # The default threshold for selecting outliers is set to 2S
-new_utils.plot_attention_sum(attention_weights, sequence, threshold="2S")
+utils.plot_attention_sum(attention_weights, sequence, threshold="2S")
 ```
 
 ## Designing Cofactor-Switching Mutants:

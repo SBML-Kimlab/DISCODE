@@ -14,7 +14,7 @@ This structure helps users easily navigate and understand the DISCODE repository
   - **weights/weights.pt** : The weight file that needs to be loaded for using the model.
 
 ## Installation
-### Manually install
+### Manual install
 **Note : This code was developed in Linux, and has been tested in Ubuntu 18.04 and 20.04 with Python 3.8.<br>**
 **While the code requires a conda environment for easier use, it can also be used without conda by installing the dependencies listed in the yaml file via pip.<br>**
 1. Clone github repository
@@ -28,7 +28,7 @@ conda env create -f discode.yaml
 conda activate discode
 ```
 ### Running DISCODE on Google Colaboratory workspace
-(https://colab.research.google.com/drive/1Gm9QrmYHqLfUqZY0xz6jqfIOZSoqkoiP?usp=sharing).<br>
+https://colab.research.google.com/drive/1Gm9QrmYHqLfUqZY0xz6jqfIOZSoqkoiP?usp=sharing<br>
 
 ## Usage
 **Preparation**

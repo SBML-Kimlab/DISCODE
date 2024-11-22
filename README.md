@@ -93,6 +93,7 @@ utils.scan_switch_mutation(model = model,
 If you have any questions, problems or suggestions, please contact [us](https://sites.google.com/view/systemskimlab/home).
 
 ## Citation
+Kim and Woo et al., Deep learning for NAD/NADP cofactor prediction and engineering using transformer attention analysis in enzymes. Metabolic Engineering 87, xx-xx (2025)
 
 ## Reference
 1. A. Vaswani et al., Attention Is All You Need. Adv Neur In 30 (2017).
